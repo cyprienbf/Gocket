@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net"
 	"strings"
 )
@@ -39,18 +40,25 @@ func handleConnection(conn net.Conn) {
 	// Create a new reader to read data from the connection.
 	reader := bufio.NewReader(conn)
 
-	// Read the incoming data until a newline is received.
-	message, err := reader.ReadString('\n')
-	if err != nil {
-		fmt.Println("Error reading:", err.Error())
-		return
+	for {
+		// Read the incoming data until a newline is received.
+		message, err := reader.ReadString('\n')
+
+		if err != nil {
+			if err == io.EOF {
+				fmt.Println("Client closed the connection.")
+			} else {
+				fmt.Println("Error reading:", err.Error())
+			}
+			return
+		}
+
+		// Trim the newline character from the message.
+		message = strings.TrimSpace(string(message))
+		fmt.Printf("Message Received: %s\n", message)
+
+		// Send a response back to the client.
+		response := fmt.Sprintf("OK. You sent: %s\n", message)
+		conn.Write([]byte(response))
 	}
-
-	// Trim the newline character from the message.
-	message = strings.TrimSpace(string(message))
-	fmt.Printf("Message Received: %s\n", message)
-
-	// Send a response back to the client.
-	response := fmt.Sprintf("OK. You sent: %s\n", message)
-	conn.Write([]byte(response))
 }
