@@ -15,8 +15,7 @@ func main() {
 		return
 	}
 
-	// Connect to the UDP server. This doesn't create a persistent connection,
-	// but sets a default destination for packets.
+	// Connect to the UDP server (sets a default destination for packets)
 	conn, err := net.DialUDP("udp", nil, serverAddr)
 	if err != nil {
 		fmt.Println("Error connecting:", err)
